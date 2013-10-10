@@ -6,8 +6,16 @@ import sys
 import yaml
 import jinja2
 
-data = yaml.load(open(sys.argv[1]))
-template = jinja2.Template(open(sys.argv[2]).read())
 
-output = template.render(data=data).encode("utf8")
-sys.stdout.write(output)
+env = jinja2.Environment(
+    loader=jinja2.PackageLoader('yaml2jinja', '.'),
+    extensions=['jinja2.ext.with_']
+)
+
+
+if __name__ == '__main__':
+    data = yaml.load(open(sys.argv[1]))
+    template = env.get_template(sys.argv[2])
+    output = template.render(data=data).encode("utf8")
+    sys.stdout.write(output)
+
