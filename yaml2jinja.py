@@ -12,6 +12,10 @@ env = jinja2.Environment(
     extensions=['jinja2.ext.with_']
 )
 
+def sort(value, key=None):
+    return sorted(value, key=lambda v: v[key])
+env.filters['sort'] = sort
+
 
 if __name__ == '__main__':
     data = yaml.load(open(sys.argv[1]))
