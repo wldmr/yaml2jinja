@@ -40,11 +40,23 @@ def sort(value, key=None):
 env.filters['sort'] = sort
 
 
+def make_finalize(keys):
+    if keys:
+        def finalize(expr):
+            if isinstance(expr, dict):
+                for key in keys:
+                    if key in expr:
+                        return expr[key]
+            else:
+                return expr
+        return finalize
+    else:
+        return lambda expr: expr
+
 if __name__ == '__main__':
     args = get_arguments()
     data = yaml.load(open(args.data))
-    data = yaml.load(open(sys.argv[1]))
-    template = env.get_template(sys.argv[2])
+    env.finalize = make_finalize(args.try_keys)
     template = env.get_template(args.template)
     output = template.render(data=data).encode("utf8")
     sys.stdout.write(output)
