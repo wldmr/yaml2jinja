@@ -23,9 +23,12 @@ def get_arguments():
     parser.add_argument("template",
         help=("The template in Jinja2 syntax."))
 
-    parser.add_argument('-t', '--try-keys',
+    parser.add_argument('-v', '--variants',
         action=CommaSeparatedList,
-        help="If a Jinja2 variable is a dict, try the keys given here, in order.")
+        help=("If a template variable or expression is a dict, "
+              "try the keys given here, in the given order. "
+              "If it is a tuple of the form ('v1:Hello', 'v2:Hallo'), "
+              "then convert it to a dict {'v1': 'Hello', 'v2': Hallo'} first."))
 
     return parser.parse_args()
 
@@ -50,23 +53,29 @@ def sort(value, key=None):
 env.filters['sort'] = sort
 
 
-def make_finalize(keys):
-    if keys:
-        def finalize(expr):
-            if isinstance(expr, dict):
-                for key in keys:
-                    if key in expr:
-                        return expr[key]
-            else:
-                return expr
-        return finalize
-    else:
+def select_variant(keys):
+    if not keys:
         return lambda expr: expr
 
+    def func(expr):
+        if isinstance(expr, tuple):
+            pairs = (item.split(":", 1) for item in expr)
+            expr = dict(pairs)
+
+        if isinstance(expr, dict):
+            for key in keys:
+                if key in expr:
+                    return expr[key]
+
+        return expr
+
+    return func
 if __name__ == '__main__':
     args = get_arguments()
     data = yaml.load(open(args.data))
-    env.finalize = make_finalize(args.try_keys)
+    env.globals['variants'] = args.variants
+    env.finalize = select_variant(args.variants)
+    env.filters['select_variant'] = env.select_variant
     template = env.get_template(args.template)
     output = template.render(data=data).encode("utf8")
     sys.stdout.write(output)
