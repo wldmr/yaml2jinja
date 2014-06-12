@@ -31,8 +31,18 @@ def get_arguments():
 
 
 env = jinja2.Environment(
-    loader=jinja2.PackageLoader('yaml2jinja', '.'),
-    extensions=['jinja2.ext.with_']
+    loader=jinja2.FileSystemLoader('.'),
+    extensions=['jinja2.ext.with_'],
+    block_start_string='{%',
+    block_end_string='%}',
+    variable_start_string='{{',
+    variable_end_string='}}',
+    comment_start_string='{#',
+    comment_end_string='#}',
+    line_statement_prefix='::',
+    line_comment_prefix='##',
+    trim_blocks=True,
+    lstrip_blocks=True,
 )
 
 def sort(value, key=None):
