@@ -48,10 +48,6 @@ env = jinja2.Environment(
     lstrip_blocks=True,
 )
 
-def sort(value, key=None):
-    return sorted(value, key=lambda v: v[key])
-env.filters['sort'] = sort
-
 
 def select_variant(keys):
     if not keys:
