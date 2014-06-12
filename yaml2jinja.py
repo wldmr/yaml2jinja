@@ -71,7 +71,7 @@ if __name__ == '__main__':
     data = yaml.load(open(args.data))
     env.globals['variants'] = args.variants
     env.finalize = select_variant(args.variants)
-    env.filters['select_variant'] = env.select_variant
+    env.filters['select_variant'] = env.finalize
     template = env.get_template(args.template)
     output = template.render(data=data).encode("utf8")
     sys.stdout.write(output)
