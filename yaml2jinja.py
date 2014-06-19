@@ -48,6 +48,12 @@ env = jinja2.Environment(
     lstrip_blocks=True,
 )
 
+def test_match(sequence, values):
+    values = values.split()
+    take = set(v for v in values if not v.startswith('-'))
+    leave = set(v[1:] for v in values if v.startswith('-'))
+    return take.issubset(sequence) and leave.isdisjoint(sequence)
+env.tests['match'] = test_match
 
 def select_variant(keys):
     if not keys:
@@ -66,6 +72,7 @@ def select_variant(keys):
         return expr
 
     return func
+
 if __name__ == '__main__':
     args = get_arguments()
     data = yaml.load(open(args.data))
